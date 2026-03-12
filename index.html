@@ -4,69 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI-Assistent Demo — Roel Willemsen</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --groen:#1a5c3a; --geel:#f5c800; --licht:#f5f2eb; }
+  :root { --groen:#1a5c3a; --geel:#f5c800; --licht:#f4f1ea; --wit:#ffffff; --tekst:#1c1c1c; --grijs:#6b7280; }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--licht); min-height:100vh; }
 
-  header { background:var(--groen); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
-  .header-logo { color:white; font-weight:700; font-size:16px; display:flex; align-items:center; gap:10px; }
-  .header-badge { background:var(--geel); color:#0f3d26; font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; }
+  nav { background:var(--groen); padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; }
+  .nav-brand { color:white; font-weight:700; font-size:15px; }
+  .nav-pill { background:var(--geel); color:#0f3d26; font-size:11px; font-weight:700; padding:5px 12px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; }
 
-  .hero { background:var(--groen); padding:48px 32px 64px; text-align:center; color:white; }
-  .hero h1 { font-size:30px; font-weight:700; margin-bottom:12px; }
-  .hero h1 span { color:var(--geel); }
-  .hero p { color:rgba(255,255,255,0.7); font-size:15px; max-width:460px; margin:0 auto; }
+  .hero { background:var(--groen); padding:56px 40px 72px; text-align:center; }
+  .hero-tag { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); padding:6px 16px; border-radius:100px; color:rgba(255,255,255,0.85); font-size:13px; margin-bottom:20px; }
+  .hero-tag span { width:7px; height:7px; background:#22c55e; border-radius:50%; display:inline-block; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hero h1 { font-size:34px; font-weight:700; color:white; line-height:1.2; margin-bottom:12px; }
+  .hero h1 em { color:var(--geel); font-style:normal; }
+  .hero p { color:rgba(255,255,255,0.65); font-size:15px; max-width:420px; margin:0 auto; }
 
-  .main { max-width:720px; margin:-24px auto 0; padding:0 24px 80px; }
+  .main { max-width:680px; margin:-28px auto 0; padding:0 20px 100px; }
 
-  .card { background:white; border-radius:16px; padding:28px 32px; box-shadow:0 4px 24px rgba(0,0,0,0.08); margin-bottom:16px; }
-  .card h2 { font-size:15px; font-weight:700; color:var(--groen); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .section { background:var(--wit); border-radius:16px; overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,0.07); margin-bottom:14px; }
+  .section-header { padding:18px 24px 14px; border-bottom:1px solid #f0ede6; }
+  .section-header h2 { font-size:13px; font-weight:700; color:var(--grijs); letter-spacing:1px; text-transform:uppercase; }
 
-  .questions-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-
+  .q-list { padding:8px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .q-btn {
-    background:var(--licht); border:1.5px solid #e5e7eb; border-radius:10px;
-    padding:12px 14px; text-align:left; cursor:pointer; font-family:inherit;
-    font-size:13px; color:#374151; transition:all 0.2s; line-height:1.4;
+    background:var(--licht); border:none; border-radius:10px;
+    padding:14px 16px; text-align:left; cursor:pointer;
+    font-family:inherit; font-size:13.5px; font-weight:500;
+    color:var(--tekst); line-height:1.4; transition:all 0.18s;
+    display:flex; align-items:flex-start; gap:10px;
   }
-  .q-btn:hover { border-color:var(--groen); background:white; color:var(--groen); transform:translateY(-1px); box-shadow:0 4px 12px rgba(26,92,58,0.1); }
-  .q-btn .q-icon { font-size:15px; display:block; margin-bottom:4px; }
+  .q-btn:hover { background:var(--groen); color:white; transform:translateY(-1px); box-shadow:0 4px 14px rgba(26,92,58,0.2); }
+  .q-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
 
-  .divider { text-align:center; color:#9ca3af; font-size:13px; margin:8px 0; position:relative; }
-  .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:#e5e7eb; }
-  .divider::before { left:0; } .divider::after { right:0; }
+  .divider { text-align:center; color:#b5b0a5; font-size:12px; margin:6px 0 10px; letter-spacing:0.5px; }
 
-  .cta-card { background:var(--groen); border-radius:16px; padding:28px 32px; color:white; display:flex; align-items:center; justify-content:space-between; gap:20px; }
-  .cta-card h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
-  .cta-card p { font-size:13px; color:rgba(255,255,255,0.7); }
-  .cta-btn { background:var(--geel); color:#0f3d26; border:none; padding:12px 24px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; font-family:inherit; flex-shrink:0; }
+  .cta { background:var(--groen); border-radius:16px; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; box-shadow:0 4px 20px rgba(26,92,58,0.2); }
+  .cta-text h3 { color:white; font-size:16px; font-weight:700; margin-bottom:4px; }
+  .cta-text p { color:rgba(255,255,255,0.6); font-size:13px; }
+  .cta-btn { background:var(--geel); color:#0f3d26; border:none; padding:11px 22px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+  .cta-btn:hover { background:#e6bb00; }
 
-  .arrow-hint { position:fixed; bottom:96px; right:100px; background:var(--groen); color:white; padding:8px 14px; border-radius:100px; font-size:13px; font-weight:600; animation:hint 2s ease-in-out infinite; pointer-events:none; white-space:nowrap; }
-  .arrow-hint::after { content:''; position:absolute; right:-8px; top:50%; transform:translateY(-50%); border:6px solid transparent; border-left-color:var(--groen); }
-  @keyframes hint { 0%,100%{transform:translateX(0)} 50%{transform:translateX(6px)} }
+  /* HINT — vast boven de chatknop */
+  .hint {
+    position:fixed;
+    bottom:32px;
+    right:96px;
+    background:var(--groen);
+    color:white;
+    padding:8px 14px;
+    border-radius:100px;
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    animation:float 2s ease-in-out infinite;
+    pointer-events:none;
+    box-shadow:0 4px 16px rgba(26,92,58,0.3);
+    white-space:nowrap;
+  }
+  .hint::after {
+    content:'';
+    position:absolute;
+    right:-7px;
+    top:50%;
+    transform:translateY(-50%);
+    border:5px solid transparent;
+    border-left-color:var(--groen);
+  }
+  .hint-dot { width:8px; height:8px; background:#22c55e; border-radius:50%; animation:pulse 2s infinite; flex-shrink:0; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
 
-  @media(max-width:540px){ .questions-grid{grid-template-columns:1fr} .cta-card{flex-direction:column;text-align:center} .arrow-hint{display:none} }
+  @media(max-width:520px) {
+    .q-list { grid-template-columns:1fr; }
+    .cta { flex-direction:column; text-align:center; }
+    .hint { display:none; }
+    nav { padding:0 20px; }
+    .hero { padding:40px 20px 56px; }
+    .hero h1 { font-size:26px; }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-logo">🏠 Roel Willemsen Garantiemakelaars</div>
-  <div class="header-badge">AI Demo</div>
-</header>
+<nav>
+  <div class="nav-brand">🏠 Roel Willemsen Garantiemakelaars</div>
+  <div class="nav-pill">AI Demo</div>
+</nav>
 
 <div class="hero">
-  <h1>Stel je vraag aan onze <span>AI-assistent</span></h1>
-  <p>Klik op een vraag hieronder of typ zelf iets in de chatbot rechtsonder ↘</p>
+  <div class="hero-tag"><span></span> AI-assistent is online</div>
+  <h1>Stel je vraag aan onze<br><em>AI-assistent</em></h1>
+  <p>Klik op een vraag of typ zelf iets in de chatbot rechtsonder.</p>
 </div>
 
 <div class="main">
 
-  <div class="card">
-    <h2>🏡 Huis verkopen</h2>
-    <div class="questions-grid">
+  <div class="section">
+    <div class="section-header"><h2>🏡 Huis verkopen</h2></div>
+    <div class="q-list">
       <button class="q-btn" onclick="openChat('Hoe werkt het verkoopproces?')"><span class="q-icon">📋</span>Hoe werkt het verkoopproces?</button>
       <button class="q-btn" onclick="openChat('Wat kost de makelaarscourtage?')"><span class="q-icon">💰</span>Wat kost de makelaarscourtage?</button>
       <button class="q-btn" onclick="openChat('Hoe lang duurt het om mijn huis te verkopen?')"><span class="q-icon">⏱️</span>Hoe lang duurt een verkoop?</button>
@@ -74,9 +113,9 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>📊 Waarde & Taxatie</h2>
-    <div class="questions-grid">
+  <div class="section">
+    <div class="section-header"><h2>📊 Waarde &amp; Taxatie</h2></div>
+    <div class="q-list">
       <button class="q-btn" onclick="openChat('Wat kost een taxatie?')"><span class="q-icon">📄</span>Wat kost een taxatie?</button>
       <button class="q-btn" onclick="openChat('Kan ik een gratis waardebepaling krijgen?')"><span class="q-icon">🆓</span>Gratis waardebepaling?</button>
       <button class="q-btn" onclick="openChat('Wat is het verschil tussen een taxatie en waardebepaling?')"><span class="q-icon">🔍</span>Taxatie vs waardebepaling?</button>
@@ -84,20 +123,20 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>🔑 Huis kopen & contact</h2>
-    <div class="questions-grid">
+  <div class="section">
+    <div class="section-header"><h2>🔑 Huis kopen &amp; contact</h2></div>
+    <div class="q-list">
       <button class="q-btn" onclick="openChat('Kunnen jullie mij helpen bij het kopen van een huis?')"><span class="q-icon">🏠</span>Hulp bij aankoop?</button>
-      <button class="q-btn" onclick="openChat('In welke gebieden zijn jullie actief?')"><span class="q-icon">📍</span>Werkgebied?</button>
+      <button class="q-btn" onclick="openChat('In welke gebieden zijn jullie actief?')"><span class="q-icon">📍</span>In welk werkgebied?</button>
       <button class="q-btn" onclick="openChat('Wat is een bouwtechnische keuring?')"><span class="q-icon">🔧</span>Bouwtechnische keuring?</button>
       <button class="q-btn" onclick="openChat('Hoe kan ik een afspraak maken?')"><span class="q-icon">📅</span>Afspraak maken?</button>
     </div>
   </div>
 
-  <div class="divider">of stel zelf een vraag in de chatbot</div>
+  <div class="divider">— of stel zelf een vraag in de chatbot —</div>
 
-  <div class="cta-card">
-    <div>
+  <div class="cta">
+    <div class="cta-text">
       <h3>Wil jij ook zo'n AI-assistent?</h3>
       <p>Launchly.nl bouwt dit voor jouw bedrijf — binnen 1 week live.</p>
     </div>
@@ -106,10 +145,9 @@
 
 </div>
 
-<div class="arrow-hint">💬 Probeer de chatbot!</div>
+<div class="hint" id="hint"><span class="hint-dot"></span>Probeer de chatbot!</div>
 
 <script src="/roelwillemsen.js"></script>
-
 <script>
   function openChat(vraag) {
     const win = document.getElementById('lnch-window');
@@ -118,8 +156,15 @@
     setTimeout(() => {
       const input = document.getElementById('lnch-input');
       if (input) { input.value = vraag; window.__lnchSend(); }
-    }, 300);
+    }, 350);
   }
+  setTimeout(() => {
+    const toggle = document.getElementById('lnch-toggle');
+    if (toggle) toggle.addEventListener('click', () => {
+      const h = document.getElementById('hint');
+      if (h) h.style.display = 'none';
+    });
+  }, 600);
 </script>
 
 </body>
