@@ -14,12 +14,9 @@
     // +31 6 12 34 56 78  →  31612345678
     whatsappNummer: '31612345678',   // ← DIT AANPASSEN
 
-    // Formspree endpoint — maak gratis account op formspree.io
-    // Klik "New Form" → kopieer de endpoint URL → plak hieronder
-    formspreeUrl: 'https://formspree.io/f/JOUW_FORM_ID',  // ← DIT AANPASSEN
-
     // Groq key staat in Vercel env vars — nooit hier invullen!
-    apiUrl: '/api/chat',
+    apiUrl:  '/api/chat',
+    leadUrl: '/api/lead',
 
     prompt: `Je bent de vriendelijke AI-assistent van Roel Willemsen Garantiemakelaars in Arnhem.
 
@@ -68,7 +65,17 @@ BELANGRIJK:
 - Nooit "naam", "tel" of placeholders invullen — alleen echte antwoorden
 - Stel één vraag tegelijk
 - Antwoord UITSLUITEND in het Nederlands
-- Max 3 zinnen per bericht`
+- Max 3 zinnen per bericht
+
+KLIKBARE OPTIES — gebruik dit wanneer je keuzes aanbiedt:
+Voeg aan het EINDE van je bericht toe (nooit zichtbaar als tekst):
+[OPTIES: Optie 1 | Optie 2 | Optie 3]
+Maximaal 3 opties, kort (max 4 woorden).
+Gebruik dit bij openingsvragen of als je meerdere richtingen kunt opgaan.
+Nooit tijdens de lead flow (naam/tel vragen).
+Voorbeelden:
+- Na eerste bericht: [OPTIES: Huis verkopen | Huis kopen | Taxatie aanvragen]
+- Na vraag over verkopen: [OPTIES: Afspraak maken | Meer info | Wat kost het?]`
   };
   /* ──────────────────────────────────────────────────────────────── */
 
@@ -121,6 +128,9 @@ BELANGRIJK:
     .lnch-ft{text-align:center;padding:6px;font-size:10px;color:#ccc;background:#fff;border-top:1px solid #f5f5f5;flex-shrink:0;}
     .lnch-ft a{color:#ccc;text-decoration:none;}
     @media(max-width:400px){#lnch-window{width:calc(100vw - 32px);right:16px;}}
+    .lnch-opties{display:flex;flex-direction:column;gap:6px;align-self:stretch;animation:lnchUp .25s ease;margin-top:2px;}
+    .lnch-optie-btn{background:#fff;border:1.5px solid ${P};color:${P};border-radius:10px;padding:10px 14px;text-align:left;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .18s;line-height:1.3;}
+    .lnch-optie-btn:hover{background:${P};color:#fff;transform:translateX(3px);}
   `;
   document.head.appendChild(stl);
 
@@ -184,6 +194,39 @@ BELANGRIJK:
     return tekst.replace(/\[LEAD\|[^\]]+\]/gi, '').trim();
   }
 
+  // Detecteer [OPTIES: A | B | C] in bot antwoord
+  function detecteerOpties(tekst) {
+    const m = tekst.match(/\[OPTIES:\s*([^\]]+)\]/i);
+    if (!m) return null;
+    return m[1].split('|').map(o => o.trim()).filter(Boolean);
+  }
+
+  function verwijderOptiesTag(tekst) {
+    return tekst.replace(/\[OPTIES:[^\]]+\]/gi, '').trim();
+  }
+
+  function toonOpties(opties) {
+    // Verwijder vorige opties als die er nog zijn
+    const oud = msgs.querySelector('.lnch-opties');
+    if (oud) oud.remove();
+
+    const wrap = document.createElement('div');
+    wrap.className = 'lnch-opties';
+    opties.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'lnch-optie-btn';
+      btn.textContent = opt;
+      btn.onclick = () => {
+        wrap.remove(); // opties weghalen na klik
+        inp.value = opt;
+        __lnchSend();
+      };
+      wrap.appendChild(btn);
+    });
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
   async function toonLeadCard(lead) {
     if (leadGedaan) return;
     leadGedaan = true;
@@ -193,15 +236,14 @@ BELANGRIJK:
     // ── 1. Stuur lead automatisch naar Roel via Formspree (e-mail) ──
     let emailVerstuurd = false;
     try {
-      const r = await fetch(C.formspreeUrl, {
+      const r = await fetch(C.leadUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           naam:      lead.naam,
           telefoon:  lead.tel,
           interesse: lead.interesse,
-          datum:     datum,
-          bron:      'AI-assistent roelwillemsen.nl'
+          datum:     datum
         })
       });
       emailVerstuurd = r.ok;
