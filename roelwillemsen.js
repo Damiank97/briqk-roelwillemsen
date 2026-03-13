@@ -12,7 +12,7 @@
     // ── WhatsApp bedrijfsnummer ────────────────────────────────────
     // Formaat: landcode + nummer, geen +, spaties of streepjes
     // +31 6 12 34 56 78  →  31612345678
-    whatsappNummer: '31642839335',   // ← DIT AANPASSEN
+    whatsappNummer: '31612345678',   // ← DIT AANPASSEN
 
     // Groq key staat in Vercel env vars — nooit hier invullen!
     apiUrl: '/api/chat',
@@ -28,9 +28,6 @@ BEDRIJFSINFO:
 TEAM:
 - David Franke — Vastgoedadviseur, 06-10904231
 - Maurice Freijters — NVM Register Makelaar & Taxateur, 06-53162169
-- Marenthe Freijters — Marketeer
-- Leny Huisman — Commercieel Medewerker Binnendienst
-- Loïs Freijters — Commercieel Medewerker Binnendienst
 
 DIENSTEN:
 - Huis verkopen: No Cure = No Pay, courtage ~1-1,5%
@@ -44,26 +41,30 @@ VEELGESTELDE VRAGEN:
 - Waardebepaling vs taxatie: waardebepaling gratis/indicatief, taxatie officieel/betaald
 - Weekend: nee, alleen ma-vr 09:00-17:00
 
-GEDRAG:
-- Beantwoord vragen vriendelijk en kort (max 3 zinnen)
-- Stel één vraag tegelijk, nooit meerdere tegelijk
-- Antwoord UITSLUITEND in het Nederlands
+WANNEER GEEN LEAD FLOW:
+Bij informatieve vragen zoals "wat kost...", "hoe werkt...", "wat is...", "hoe lang duurt..." → gewoon vriendelijk beantwoorden, GEEN naam of telefoonnummer vragen.
 
-LEAD FLOW — alleen activeren bij duidelijke interesse:
-Wanneer iemand aangeeft te willen verkopen, kopen, een afspraak wil maken, of een waardebepaling/taxatie wil:
+WANNEER WEL LEAD FLOW:
+Alleen als iemand ZELF aangeeft dat ze iets willen doen. Signaalwoorden: "ik wil", "ik zou graag", "kunnen jullie mij helpen", "ik ben geïnteresseerd", "afspraak maken", "mijn huis verkopen", "waardebepaling aanvragen".
 
-Stap 1 — beantwoord de vraag kort en stel dan vriendelijk voor:
-"Zal ik alvast een berichtje voor je klaarzetten zodat wij contact met je kunnen opnemen? Mag ik je naam?"
+LEAD FLOW (3 stappen, nooit overslaan):
+Stap 1 — beantwoord kort en vraag naam:
+"[korte reactie]. Zal ik een berichtje voor je klaarzetten zodat we contact kunnen opnemen? Mag ik je naam?"
 
-Stap 2 — zodra je naam hebt, vraag telefoonnummer:
+Stap 2 — zodra je de echte naam hebt, vraag telefoonnummer:
 "Fijn [naam]! En je telefoonnummer zodat we je kunnen terugbellen?"
 
-Stap 3 — zodra je naam EN telefoonnummer hebt, sluit af met:
-"Top [naam], ik heb alles klaarstaan! Klik hieronder op de knop om het berichtje naar ons te sturen — dan nemen wij zo snel mogelijk contact op. 😊"
-En zet dit EXACT op de ALLERLAATSTE REGEL (nooit zichtbaar tonen):
-[LEAD|naam=NAAM|tel=TEL|interesse=OMSCHRIJVING]
+Stap 3 — zodra je het echte telefoonnummer hebt, sluit af:
+"Top [naam], ik heb alles voor je klaarstaan! Klik op de knop hieronder om ons een berichtje te sturen — dan nemen wij zo snel mogelijk contact op. 😊"
+Zet dan EXACT dit op de ALLERLAATSTE REGEL (onzichtbaar voor bezoeker):
+[LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=KORTE_OMSCHRIJVING]
 
-Bij gewone informatieve vragen (kosten, proces, uitleg): gewoon beantwoorden, GEEN lead flow starten.`
+BELANGRIJK:
+- Vul bij naam en tel ALTIJD de echte waarden in die de bezoeker heeft gegeven
+- Nooit "naam", "tel" of placeholders invullen — alleen echte antwoorden
+- Stel één vraag tegelijk
+- Antwoord UITSLUITEND in het Nederlands
+- Max 3 zinnen per bericht`
   };
   /* ──────────────────────────────────────────────────────────────── */
 
@@ -100,6 +101,8 @@ Bij gewone informatieve vragen (kosten, proces, uitleg): gewoon beantwoorden, GE
     .wa-card-sub{color:rgba(255,255,255,.5);font-size:11px;margin-top:2px;}
     .lnch-wa-info{background:rgba(0,0,0,.2);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:13px;color:rgba(255,255,255,.9);line-height:1.7;}
     .wa-card-footer{text-align:center;color:rgba(255,255,255,.45);font-size:11px;margin-top:10px;}
+    .wa-card-close{margin-left:auto;background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.6);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
+    .wa-card-close:hover{background:rgba(255,255,255,.25);color:#fff;}
     .lnch-wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;border-radius:9px;padding:11px;width:100%;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;text-decoration:none;transition:background .2s;}
     .lnch-wa-btn:hover{background:#1aab52;}
     #lnch-sugs{padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #f0f0f0;background:#fff;flex-shrink:0;}
@@ -200,6 +203,7 @@ Bij gewone informatieve vragen (kosten, proces, uitleg): gewoon beantwoorden, GE
           <div class="wa-card-title">Jouw berichtje staat klaar!</div>
           <div class="wa-card-sub">Één klik en wij nemen contact op</div>
         </div>
+        <button class="wa-card-close" onclick="this.closest('.lnch-wa-card').remove()" title="Sluiten">✕</button>
       </div>
       <div class="lnch-wa-info">
         👤 ${lead.naam} &nbsp;·&nbsp; 📞 ${lead.tel}<br>
