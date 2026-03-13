@@ -182,8 +182,16 @@
 
   // Luister naar lead event vanuit roelwillemsen.js
   // (wordt gefired via window.dispatchEvent in de widget)
-  window.addEventListener('briqk-lead', () => {
-    document.getElementById('leadBadge').classList.add('zichtbaar');
+  window.addEventListener('briqk-lead', (e) => {
+    const badge = document.getElementById('leadBadge');
+    const txt = document.getElementById('leadBadgeText');
+    const d = e.detail || {};
+    if (d.emailVerstuurd) {
+      txt.innerHTML = '<strong>📧 Lead ontvangen: ' + (d.naam||'') + '</strong><br>Bevestiging verstuurd naar Roel — reactie binnen 1 werkdag.';
+    } else {
+      txt.innerHTML = '<strong>💬 Lead ontvangen: ' + (d.naam||'') + '</strong><br>Bezoeker kan direct via WhatsApp contact opnemen.';
+    }
+    badge.classList.add('zichtbaar');
   });
 </script>
 
