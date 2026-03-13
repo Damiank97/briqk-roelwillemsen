@@ -12,7 +12,7 @@
     // ── WhatsApp bedrijfsnummer ────────────────────────────────────
     // Formaat: landcode + nummer, geen +, spaties of streepjes
     // +31 6 12 34 56 78  →  31612345678
-    whatsappNummer: '31612345678',   // ← DIT AANPASSEN
+    whatsappNummer: '31642839335',   // ← DIT AANPASSEN
 
     // Groq key staat in Vercel env vars — nooit hier invullen!
     apiUrl: '/api/chat',
