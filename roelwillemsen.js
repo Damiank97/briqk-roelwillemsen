@@ -33,25 +33,43 @@ DIENSTEN:
 
 OPMAAKREGELS — VERPLICHT:
 1. Maximaal 2 zinnen per antwoord. Nooit langer.
-2. Geen opsommingen of bulletpoints in je antwoord.
-3. Sluit ELKE reactie af met een [OPTIES:] tag BEHALVE tijdens de lead flow.
-4. [OPTIES:] tag staat altijd op de allerlaatste regel, nooit zichtbaar als tekst.
+2. Geen opsommingen of bulletpoints.
+3. Altijd slechts 1 vraag per bericht — nooit meerdere vragen tegelijk.
+4. Buiten de lead flow: eindig met [OPTIES:] tag (zie onder).
 
-OPTIES TAG — ALTIJD GEBRUIKEN (behalve lead flow):
-Formaat: [OPTIES: Tekst knop 1 | Tekst knop 2 | Tekst knop 3]
-Max 3 opties, max 4 woorden per optie.
-
-Voorbeelden per situatie:
-- Openingsvraag of algemeen: [OPTIES: Huis verkopen | Huis kopen | Taxatie aanvragen]
+OPTIES TAG (buiten lead flow):
+Formaat: [OPTIES: Knop 1 | Knop 2 | Knop 3] — altijd op de allerlaatste regel.
+Voorbeelden:
+- Algemeen: [OPTIES: Huis verkopen | Huis kopen | Gratis waardebepaling]
 - Na uitleg verkopen: [OPTIES: Afspraak inplannen | Wat kost het? | Hoe lang duurt het?]
 - Na uitleg taxatie: [OPTIES: Taxatie aanvragen | Gratis waardebepaling | Meer info]
-- Na uitleg aankoop: [OPTIES: Afspraak inplannen | Werkgebied bekijken | Bel ons]
 
-LEAD FLOW — alleen bij duidelijke koopintentie ("ik wil", "afspraak maken", "aanvragen"):
-Stap 1: Beantwoord kort + vraag naam: "Mag ik je naam zodat ik je persoonlijk kan aanspreken?"
-Stap 2: Vraag telefoonnummer: "Fijn [naam]! En je telefoonnummer zodat we je kunnen terugbellen?"
-Stap 3: Bevestig + sluit af met tag op allerlaatste regel:
-[LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=OMSCHRIJVING]
+LEAD FLOW — verplicht na 2-3 beantwoorde vragen van de bezoeker:
+Tel het aantal vragen dat de bezoeker heeft gesteld. Na 2 à 3 vragen ga je over naar de lead flow, ook als de bezoeker niet zelf om contact vraagt.
+
+Stap 1 — vraag naam:
+"Om je nog beter te kunnen helpen, mag ik je naam weten?"
+
+Stap 2 — zodra je de naam hebt, vraag telefoonnummer:
+"Fijn, [naam]! Wat is je telefoonnummer zodat we je persoonlijk kunnen terugbellen?"
+
+Stap 3a — als bezoeker geen nummer wil geven, vraag e-mailadres:
+"Geen probleem! Mag ik dan je e-mailadres, zodat we je via de mail kunnen bereiken?"
+
+Stap 3b — als bezoeker ook geen e-mail wil geven:
+"Dat begrijp ik. U kunt ons zelf bereiken via 026-3274455 of info@roelwillemsen.nl — we helpen u graag!"
+Zet daarna GEEN lead tag.
+
+Stap 4 — zodra je naam + telefoon OF naam + e-mail hebt, sluit af:
+"Top [naam], ik heb alles voor je klaarstaan! Klik op de knop hieronder om ons te bereiken. 😊"
+Zet dan EXACT op de allerlaatste regel:
+[LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=KORTE_OMSCHRIJVING]
+(als geen telefoon maar wel email: vul tel in met het e-mailadres)
+
+REGELS LEAD FLOW:
+- Nooit naam/tel/email als placeholder invullen — alleen echte waarden
+- Altijd 1 vraag per bericht
+- Tijdens lead flow: geen [OPTIES:] tag
 
 TAAL: Altijd Nederlands. Vriendelijk en warm.`
   };
@@ -94,9 +112,6 @@ TAAL: Altijd Nederlands. Vriendelijk en warm.`
     .wa-card-close:hover{background:rgba(255,255,255,.25);color:#fff;}
     .lnch-wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;border-radius:9px;padding:11px;width:100%;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;text-decoration:none;transition:background .2s;}
     .lnch-wa-btn:hover{background:#1aab52;}
-    #lnch-sugs{padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #f0f0f0;background:#fff;flex-shrink:0;}
-    .lsug{font-size:11.5px;padding:5px 11px;border:1.5px solid ${P};color:${P};border-radius:100px;cursor:pointer;background:none;font-family:inherit;transition:all .2s;white-space:nowrap;}
-    .lsug:hover{background:${P};color:#fff;}
     .lnch-ir{padding:10px 12px;display:flex;gap:8px;border-top:1px solid #e5e7eb;background:#fff;flex-shrink:0;}
     #lnch-input{flex:1;border:1.5px solid #e5e7eb;border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;outline:none;resize:none;background:#fafafa;transition:border-color .2s;}
     #lnch-input:focus{border-color:${P};background:#fff;}
@@ -122,7 +137,6 @@ TAAL: Altijd Nederlands. Vriendelijk en warm.`
         <div class="lnch-on"></div>
       </div>
       <div id="lnch-msgs"><div class="lmsg bot">${C.welkomst}</div></div>
-      <div id="lnch-sugs">${C.suggesties.map(s => `<button class="lsug" onclick="window.__lnchQ('${s}')">${s}</button>`).join('')}</div>
       <div class="lnch-ir">
         <textarea id="lnch-input" placeholder="Stel je vraag..." rows="1"></textarea>
         <button id="lnch-send">&#x27A4;</button>
@@ -135,7 +149,6 @@ TAAL: Altijd Nederlands. Vriendelijk en warm.`
   const msgs = document.getElementById('lnch-msgs');
   const inp  = document.getElementById('lnch-input');
   const snd  = document.getElementById('lnch-send');
-  const sugs = document.getElementById('lnch-sugs');
 
   let welkomstOptiesGetoond = false;
   window.__lnchToggle = () => {
@@ -149,7 +162,6 @@ TAAL: Altijd Nederlands. Vriendelijk en warm.`
       }
     }
   };
-  window.__lnchQ = t => { sugs.style.display = 'none'; inp.value = t; __lnchSend(); };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); __lnchSend(); } });
   snd.addEventListener('click', __lnchSend);
 
