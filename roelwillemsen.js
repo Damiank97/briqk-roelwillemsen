@@ -18,64 +18,42 @@
     apiUrl:  '/api/chat',
     leadUrl: '/api/lead',
 
-    prompt: `Je bent de vriendelijke AI-assistent van Roel Willemsen Garantiemakelaars in Arnhem.
+    prompt: `Je bent de AI-assistent van Roel Willemsen Garantiemakelaars in Arnhem.
 
 BEDRIJFSINFO:
-- Adres: Ella Fitzgeraldstraat 37, 6836 DP Arnhem
-- Telefoon: 026-3274455 | info@roelwillemsen.nl
-- Openingstijden: ma-vr 09:00-17:00
-- NVM Garantiemakelaar, 45+ jaar ervaring, 9.2/10 op Funda
-
-TEAM:
-- David Franke — Vastgoedadviseur, 06-10904231
-- Maurice Freijters — NVM Register Makelaar & Taxateur, 06-53162169
+- Adres: Ella Fitzgeraldstraat 37, 6836 DP Arnhem | Tel: 026-3274455 | info@roelwillemsen.nl
+- Openingstijden: ma-vr 09:00-17:00 | NVM Garantiemakelaar | 45+ jaar | 9.2/10 op Funda
 
 DIENSTEN:
 - Huis verkopen: No Cure = No Pay, courtage ~1-1,5%
 - Gratis waardebepaling: kosteloos en vrijblijvend
 - Taxatie: 350-600 euro, erkend taxateur
 - Aankoop begeleiding, bouwtechnische keuring
-
-VEELGESTELDE VRAGEN:
-- Verkoopduur: gemiddeld 4-8 weken
 - Werkgebied: Arnhem, Velp, Arnhem-Zuid, Elst, Zevenaar
-- Waardebepaling vs taxatie: waardebepaling gratis/indicatief, taxatie officieel/betaald
-- Weekend: nee, alleen ma-vr 09:00-17:00
 
-WANNEER GEEN LEAD FLOW:
-Bij informatieve vragen zoals "wat kost...", "hoe werkt...", "wat is...", "hoe lang duurt..." → gewoon vriendelijk beantwoorden, GEEN naam of telefoonnummer vragen.
+OPMAAKREGELS — VERPLICHT:
+1. Maximaal 2 zinnen per antwoord. Nooit langer.
+2. Geen opsommingen of bulletpoints in je antwoord.
+3. Sluit ELKE reactie af met een [OPTIES:] tag BEHALVE tijdens de lead flow.
+4. [OPTIES:] tag staat altijd op de allerlaatste regel, nooit zichtbaar als tekst.
 
-WANNEER WEL LEAD FLOW:
-Alleen als iemand ZELF aangeeft dat ze iets willen doen. Signaalwoorden: "ik wil", "ik zou graag", "kunnen jullie mij helpen", "ik ben geïnteresseerd", "afspraak maken", "mijn huis verkopen", "waardebepaling aanvragen".
+OPTIES TAG — ALTIJD GEBRUIKEN (behalve lead flow):
+Formaat: [OPTIES: Tekst knop 1 | Tekst knop 2 | Tekst knop 3]
+Max 3 opties, max 4 woorden per optie.
 
-LEAD FLOW (3 stappen, nooit overslaan):
-Stap 1 — beantwoord kort en vraag naam:
-"[korte reactie]. Zal ik een berichtje voor je klaarzetten zodat we contact kunnen opnemen? Mag ik je naam?"
+Voorbeelden per situatie:
+- Openingsvraag of algemeen: [OPTIES: Huis verkopen | Huis kopen | Taxatie aanvragen]
+- Na uitleg verkopen: [OPTIES: Afspraak inplannen | Wat kost het? | Hoe lang duurt het?]
+- Na uitleg taxatie: [OPTIES: Taxatie aanvragen | Gratis waardebepaling | Meer info]
+- Na uitleg aankoop: [OPTIES: Afspraak inplannen | Werkgebied bekijken | Bel ons]
 
-Stap 2 — zodra je de echte naam hebt, vraag telefoonnummer:
-"Fijn [naam]! En je telefoonnummer zodat we je kunnen terugbellen?"
+LEAD FLOW — alleen bij duidelijke koopintentie ("ik wil", "afspraak maken", "aanvragen"):
+Stap 1: Beantwoord kort + vraag naam: "Mag ik je naam zodat ik je persoonlijk kan aanspreken?"
+Stap 2: Vraag telefoonnummer: "Fijn [naam]! En je telefoonnummer zodat we je kunnen terugbellen?"
+Stap 3: Bevestig + sluit af met tag op allerlaatste regel:
+[LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=OMSCHRIJVING]
 
-Stap 3 — zodra je het echte telefoonnummer hebt, sluit af:
-"Top [naam], ik heb alles voor je klaarstaan! Klik op de knop hieronder om ons een berichtje te sturen — dan nemen wij zo snel mogelijk contact op. 😊"
-Zet dan EXACT dit op de ALLERLAATSTE REGEL (onzichtbaar voor bezoeker):
-[LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=KORTE_OMSCHRIJVING]
-
-BELANGRIJK:
-- Vul bij naam en tel ALTIJD de echte waarden in die de bezoeker heeft gegeven
-- Nooit "naam", "tel" of placeholders invullen — alleen echte antwoorden
-- Stel één vraag tegelijk
-- Antwoord UITSLUITEND in het Nederlands
-- Max 3 zinnen per bericht
-
-KLIKBARE OPTIES — gebruik dit wanneer je keuzes aanbiedt:
-Voeg aan het EINDE van je bericht toe (nooit zichtbaar als tekst):
-[OPTIES: Optie 1 | Optie 2 | Optie 3]
-Maximaal 3 opties, kort (max 4 woorden).
-Gebruik dit bij openingsvragen of als je meerdere richtingen kunt opgaan.
-Nooit tijdens de lead flow (naam/tel vragen).
-Voorbeelden:
-- Na eerste bericht: [OPTIES: Huis verkopen | Huis kopen | Taxatie aanvragen]
-- Na vraag over verkopen: [OPTIES: Afspraak maken | Meer info | Wat kost het?]`
+TAAL: Altijd Nederlands. Vriendelijk en warm.``
   };
   /* ──────────────────────────────────────────────────────────────── */
 
@@ -159,10 +137,17 @@ Voorbeelden:
   const snd  = document.getElementById('lnch-send');
   const sugs = document.getElementById('lnch-sugs');
 
+  let welkomstOptiesGetoond = false;
   window.__lnchToggle = () => {
     win.classList.toggle('open');
     document.getElementById('lnch-badge').style.display = 'none';
-    if (win.classList.contains('open')) inp.focus();
+    if (win.classList.contains('open')) {
+      inp.focus();
+      if (!welkomstOptiesGetoond) {
+        welkomstOptiesGetoond = true;
+        setTimeout(() => toonOpties(['Huis verkopen', 'Huis kopen', 'Gratis waardebepaling']), 500);
+      }
+    }
   };
   window.__lnchQ = t => { sugs.style.display = 'none'; inp.value = t; __lnchSend(); };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); __lnchSend(); } });
@@ -194,21 +179,45 @@ Voorbeelden:
     return tekst.replace(/\[LEAD\|[^\]]+\]/gi, '').trim();
   }
 
-  // Detecteer [OPTIES: A | B | C] in bot antwoord
-  function detecteerOpties(tekst) {
-    const m = tekst.match(/\[OPTIES:\s*([^\]]+)\]/i);
-    if (!m) return null;
-    return m[1].split('|').map(o => o.trim()).filter(Boolean);
-  }
-
   function verwijderOptiesTag(tekst) {
     return tekst.replace(/\[OPTIES:[^\]]+\]/gi, '').trim();
   }
 
+  // Kies slimme opties op basis van context (niet afhankelijk van LLM)
+  function kiesOpties(userBericht, botAntwoord) {
+    const u = (userBericht || '').toLowerCase();
+    const b = (botAntwoord  || '').toLowerCase();
+
+    // Tijdens lead flow: geen opties
+    if (b.includes('mag ik je naam') || b.includes('telefoonnummer')) return null;
+
+    // Optie-sets per context
+    if (u.includes('verkoop') || u.includes('verkopen') || b.includes('verkop'))
+      return ['Afspraak inplannen', 'Wat kost het?', 'Hoe lang duurt het?'];
+
+    if (u.includes('taxatie') || b.includes('taxatie'))
+      return ['Taxatie aanvragen', 'Wat kost een taxatie?', 'Gratis waardebepaling'];
+
+    if (u.includes('koop') || u.includes('kopen') || u.includes('aankoop'))
+      return ['Aankoopbegeleiding', 'Werkgebied bekijken', 'Afspraak inplannen'];
+
+    if (u.includes('waardebepaling') || b.includes('waardebepaling'))
+      return ['Waardebepaling aanvragen', 'Verschil met taxatie?', 'Afspraak inplannen'];
+
+    if (u.includes('courtage') || u.includes('kost') || b.includes('courtage'))
+      return ['Afspraak inplannen', 'Gratis waardebepaling', 'Hoe lang duurt verkoop?'];
+
+    if (u.includes('werkgebied') || u.includes('arnhem') || u.includes('velp'))
+      return ['Afspraak inplannen', 'Huis verkopen', 'Gratis waardebepaling'];
+
+    // Default na elk bot-bericht
+    return ['Huis verkopen', 'Huis kopen', 'Gratis waardebepaling'];
+  }
+
   function toonOpties(opties) {
-    // Verwijder vorige opties als die er nog zijn
     const oud = msgs.querySelector('.lnch-opties');
     if (oud) oud.remove();
+    if (!opties || leadGedaan) return;
 
     const wrap = document.createElement('div');
     wrap.className = 'lnch-opties';
@@ -217,7 +226,7 @@ Voorbeelden:
       btn.className = 'lnch-optie-btn';
       btn.textContent = opt;
       btn.onclick = () => {
-        wrap.remove(); // opties weghalen na klik
+        wrap.remove();
         inp.value = opt;
         __lnchSend();
       };
@@ -317,12 +326,18 @@ Voorbeelden:
         : 'Er ging iets mis. Bel ons op 026-3274455.';
 
       const lead = detecteerLead(rawAntwoord);
-      const zichtbaar = verwijderLeadTag(rawAntwoord);
+      let zichtbaar = verwijderLeadTag(rawAntwoord);
+      zichtbaar = verwijderOptiesTag(zichtbaar);
 
       voegBerichtToe(zichtbaar, 'bot');
       historie.push({ role: 'assistant', content: rawAntwoord });
 
-      if (lead) setTimeout(() => toonWhatsAppCard(lead), 500);
+      if (lead) {
+        setTimeout(() => toonWhatsAppCard(lead), 500);
+      } else {
+        const opties = kiesOpties(msg, zichtbaar);
+        setTimeout(() => toonOpties(opties), 400);
+      }
 
     } catch (e) {
       typing.remove();
