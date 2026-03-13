@@ -53,7 +53,7 @@ Stap 2: Vraag telefoonnummer: "Fijn [naam]! En je telefoonnummer zodat we je kun
 Stap 3: Bevestig + sluit af met tag op allerlaatste regel:
 [LEAD|naam=ECHTENAAM|tel=ECHTETEL|interesse=OMSCHRIJVING]
 
-TAAL: Altijd Nederlands. Vriendelijk en warm.``
+TAAL: Altijd Nederlands. Vriendelijk en warm.`
   };
   /* ──────────────────────────────────────────────────────────────── */
 
