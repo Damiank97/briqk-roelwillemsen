@@ -9,7 +9,6 @@
     welkomst:   'Goedendag! Ik ben de AI-assistent van Roel Willemsen. Hoe kan ik je helpen? 🏠',
     whatsappNummer: '31612345678',   // ← DIT AANPASSEN
     apiUrl:  '/api/chat',
-    leadUrl: '/api/lead',
     leadNa: 2,  // na hoeveel gebruikersberichten start de lead flow
 
     prompt: `Je bent de AI-assistent van Roel Willemsen Garantiemakelaars in Arnhem.
@@ -25,11 +24,16 @@ DIENSTEN:
 - Aankoop begeleiding, bouwtechnische keuring
 - Werkgebied: Arnhem, Velp, Arnhem-Zuid, Elst, Zevenaar
 
-REGELS:
-1. Maximaal 2 korte zinnen per antwoord. Nooit langer.
-2. Nooit zelf een vraag stellen.
+ABSOLUTE REGELS — NOOIT OVERTREDEN:
+1. Maximaal 2 zinnen. Punt.
+2. NOOIT een vraag stellen. Geen vraagteken gebruiken. Nooit.
 3. Geen opsommingen of bulletpoints.
-4. Geen verwijzingen naar knoppen of de interface.
+4. Eindig altijd met een feit of voordeel, nooit met een vraag.
+
+VOORBEELDEN VAN GOEDE ANTWOORDEN:
+- "Huis kopen" → "Wij begeleiden u bij de aankoop in de regio Arnhem, van bezichtiging tot overdracht. Onze makelaars kennen de lokale markt als geen ander."
+- "Huis verkopen" → "Met onze No Cure = No Pay garantie betaalt u alleen als uw huis verkocht is. Gemiddeld verkopen wij binnen 4 tot 8 weken."
+- "Taxatie" → "Een officiële taxatie kost tussen de 350 en 600 euro en wordt uitgevoerd door een erkend taxateur. Het rapport is geldig voor hypotheekaanvragen."
 
 TAAL: Altijd Nederlands. Vriendelijk en direct.`
   };
@@ -161,9 +165,11 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
 
   /* OPTIES */
   function kiesOpties(userMsg) {
-    const gesproken = (historie.map(h => h.content).join(' ') + ' ' + userMsg).toLowerCase();
+    const huidig = userMsg.toLowerCase();
+    const gesproken = (historie.map(h => h.content).join(' ') + ' ' + huidig).toLowerCase();
+
     const heeftVerkopen  = gesproken.includes('verkoop') || gesproken.includes('courtage');
-    const heeftKopen     = gesproken.includes('koop') || gesproken.includes('aankoop');
+    const heeftKopen     = gesproken.includes('huis kopen') || gesproken.includes('aankoop') || gesproken.includes('droomhuis') || huidig.includes('kopen');
     const heeftWaardebep = gesproken.includes('waardebepaling');
     const heeftTaxatie   = gesproken.includes('taxatie');
     const heeftAfspraak  = gesproken.includes('afspraak');
@@ -246,7 +252,12 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
       </a>
       <div class="wa-card-footer">${emailVerstuurd ? '📧 Bevestiging verstuurd · Reactie binnen 1 werkdag' : '💬 Of bel ons op 026-3274455'}</div>`;
 
-    win.insertBefore(card, win.querySelector('.lnch-ir'));
+    const invoegPunt = msgs.parentElement.querySelector('.lnch-ir') || msgs.nextElementSibling;
+    if (invoegPunt) {
+      invoegPunt.parentElement.insertBefore(card, invoegPunt);
+    } else {
+      msgs.appendChild(card);
+    }
     setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
     window.dispatchEvent(new CustomEvent('briqk-lead', { detail: { ...leadData, emailVerstuurd } }));
   }
