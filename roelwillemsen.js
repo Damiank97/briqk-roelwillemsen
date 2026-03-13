@@ -211,10 +211,16 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
 
     let emailVerstuurd = false;
     try {
-      const r = await fetch(C.leadUrl, {
+      const r = await fetch('https://formspree.io/f/xpqylryk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ naam: leadData.naam, telefoon: leadData.tel, interesse: leadData.interesse, datum })
+        body: JSON.stringify({
+          naam,
+          telefoon:  leadData.tel,
+          interesse: leadData.interesse,
+          datum,
+          _subject:  `Nieuwe lead: ${naam}`
+        })
       });
       emailVerstuurd = r.ok;
     } catch(e) {}
