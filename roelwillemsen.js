@@ -241,7 +241,7 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
       <div class="wa-card-footer">${emailVerstuurd ? '📧 Bevestiging verstuurd · Reactie binnen 1 werkdag' : '💬 Of bel ons op 026-3274455'}</div>`;
 
     win.insertBefore(card, win.querySelector('.lnch-ir'));
-    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
     window.dispatchEvent(new CustomEvent('briqk-lead', { detail: { ...leadData, emailVerstuurd } }));
   }
 
@@ -294,6 +294,15 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
     /* In lead flow: JS handelt af, geen API */
     if (leadFase && leadFase !== 'klaar' && leadFase !== 'afgesloten') {
       await verwerkLeadInput(msg);
+      busy = false;
+      snd.disabled = false;
+      inp.focus();
+      return;
+    }
+
+    /* Na lead flow: geen API meer */
+    if (leadFase === 'klaar' || leadFase === 'afgesloten' || leadGedaan) {
+      voegBerichtToe('Je kunt ons ook bereiken via 026-3274455 of info@roelwillemsen.nl.', 'bot');
       busy = false;
       snd.disabled = false;
       inp.focus();
