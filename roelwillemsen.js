@@ -389,14 +389,7 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
       return;
     }
 
-    /* Na lead flow: geen API meer */
-    if (leadFase === 'klaar' || leadFase === 'afgesloten' || leadGedaan) {
-      voegBerichtToe('Je kunt ons ook bereiken via 026-3274455 of info@roelwillemsen.nl.', 'bot');
-      busy = false;
-      snd.disabled = false;
-      inp.focus();
-      return;
-    }
+    /* Na lead flow: gewoon door kunnen chatten */
 
     /* Normaal: API call */
     userTeller++;
