@@ -229,11 +229,11 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          naam,
+          naam:      leadData.naam,
           telefoon:  leadData.tel,
           interesse: leadData.interesse,
           datum,
-          _subject:  `Nieuwe lead: ${naam}`
+          _subject:  `Nieuwe lead: ${leadData.naam}`
         })
       });
       emailVerstuurd = r.ok;
