@@ -91,6 +91,14 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
     .lnch-opties{display:flex;flex-direction:column;gap:6px;align-self:stretch;animation:lnchUp .25s ease;margin-top:2px;}
     .lnch-optie-btn{background:#fff;border:1.5px solid ${P};color:${P};border-radius:10px;padding:10px 14px;text-align:left;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all .18s;line-height:1.3;}
     .lnch-optie-btn:hover{background:${P};color:#fff;transform:translateX(3px);}
+    .lnch-invoer-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:14px;align-self:stretch;animation:lnchUp .25s ease;margin-top:2px;}
+    .lnch-invoer-label{font-size:12px;color:#6b7280;margin-bottom:8px;font-weight:500;}
+    .lnch-invoer-field{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;transition:border-color .2s;}
+    .lnch-invoer-field:focus{border-color:${P};}
+    .lnch-invoer-btn{margin-top:8px;width:100%;background:${P};color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:filter .2s;}
+    .lnch-invoer-btn:hover{filter:brightness(1.1);}
+    .lnch-invoer-skip{display:block;text-align:center;margin-top:6px;font-size:11px;color:#9ca3af;cursor:pointer;background:none;border:none;font-family:inherit;width:100%;}
+    .lnch-invoer-skip:hover{color:#6b7280;}
   `;
   document.head.appendChild(stl);
 
@@ -165,14 +173,14 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
 
   /* OPTIES */
   function kiesOpties(userMsg) {
-    const huidig = userMsg.toLowerCase();
+    const huidig = userMsg.toLowerCase().trim();
     const gesproken = (historie.map(h => h.content).join(' ') + ' ' + huidig).toLowerCase();
 
-    const heeftVerkopen  = gesproken.includes('verkoop') || gesproken.includes('courtage');
-    const heeftKopen     = gesproken.includes('huis kopen') || gesproken.includes('aankoop') || gesproken.includes('droomhuis') || huidig.includes('kopen');
-    const heeftWaardebep = gesproken.includes('waardebepaling');
-    const heeftTaxatie   = gesproken.includes('taxatie');
-    const heeftAfspraak  = gesproken.includes('afspraak');
+    const heeftVerkopen  = gesproken.includes('verkoop') || gesproken.includes('courtage') || huidig.includes('verkopen');
+    const heeftKopen     = gesproken.includes('huis kopen') || gesproken.includes('aankoop') || huidig === 'huis kopen' || huidig.includes('kopen');
+    const heeftWaardebep = gesproken.includes('waardebepaling') || huidig.includes('waardebepaling');
+    const heeftTaxatie   = gesproken.includes('taxatie') || huidig.includes('taxatie');
+    const heeftAfspraak  = gesproken.includes('afspraak') || huidig.includes('afspraak');
 
     const beschikbaar = [];
     if (!heeftVerkopen)  beschikbaar.push('Huis verkopen');
@@ -262,37 +270,101 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
     window.dispatchEvent(new CustomEvent('briqk-lead', { detail: { ...leadData, emailVerstuurd } }));
   }
 
-  /* LEAD FLOW (volledig JS, geen LLM) */
-  async function verwerkLeadInput(msg) {
-    const weigert = /^(nee|no|nein|niet|wil niet|geen|liever niet|skip)/i.test(msg.trim());
+  /* INPUT CARD — toont een invulveld in de chat */
+  function toonInvoerCard({ label, placeholder, type = 'text', onSubmit, onSkip = null }) {
+    // Verwijder eventuele vorige kaart
+    const oud = msgs.querySelector('.lnch-invoer-card');
+    if (oud) oud.remove();
 
-    if (leadFase === 'naam') {
-      leadData.naam = msg;
-      leadFase = 'tel';
-      await botZegt(`Fijn, ${msg}! Wat is je telefoonnummer zodat we je persoonlijk kunnen terugbellen?`);
+    const card = document.createElement('div');
+    card.className = 'lnch-invoer-card';
 
-    } else if (leadFase === 'tel') {
-      if (weigert) {
-        leadFase = 'email';
-        await botZegt('Geen probleem! Mag ik dan je e-mailadres?');
-      } else {
-        leadData.tel = msg;
-        await botZegt(`Top ${leadData.naam}, ik heb alles voor je klaarstaan! 😊`);
-        await toonLeadCard();
-        leadFase = 'klaar';
-      }
+    const lbl = document.createElement('div');
+    lbl.className = 'lnch-invoer-label';
+    lbl.textContent = label;
 
-    } else if (leadFase === 'email') {
-      if (weigert) {
-        leadFase = 'afgesloten';
-        await botZegt('Dat begrijp ik. Bel ons gerust via 026-3274455 of mail naar info@roelwillemsen.nl.');
-      } else {
-        leadData.tel = msg;
-        await botZegt(`Top ${leadData.naam}, ik heb alles voor je klaarstaan! 😊`);
-        await toonLeadCard();
-        leadFase = 'klaar';
-      }
+    const field = document.createElement('input');
+    field.type = type;
+    field.className = 'lnch-invoer-field';
+    field.placeholder = placeholder;
+
+    const btn = document.createElement('button');
+    btn.className = 'lnch-invoer-btn';
+    btn.textContent = 'Bevestigen →';
+
+    const submit = () => {
+      const val = field.value.trim();
+      if (!val) { field.focus(); return; }
+      card.remove();
+      voegBerichtToe(val, 'user');
+      onSubmit(val);
+    };
+
+    btn.addEventListener('click', submit);
+    field.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+
+    card.appendChild(lbl);
+    card.appendChild(field);
+    card.appendChild(btn);
+
+    if (onSkip) {
+      const skip = document.createElement('button');
+      skip.className = 'lnch-invoer-skip';
+      skip.textContent = 'Liever niet →';
+      skip.addEventListener('click', () => { card.remove(); onSkip(); });
+      card.appendChild(skip);
     }
+
+    msgs.appendChild(card);
+    msgs.scrollTop = msgs.scrollHeight;
+    setTimeout(() => field.focus(), 100);
+  }
+
+  /* LEAD FLOW */
+  function startLeadFlow() {
+    toonInvoerCard({
+      label: 'Hoe mag ik je aanspreken?',
+      placeholder: 'Jouw naam',
+      onSubmit: (naam) => {
+        leadData.naam = naam;
+        leadFase = 'tel';
+        voegBerichtToe(`Fijn, ${naam}! Wat is je telefoonnummer zodat we je persoonlijk kunnen terugbellen?`, 'bot');
+        setTimeout(() => {
+          toonInvoerCard({
+            label: 'Jouw telefoonnummer',
+            placeholder: '06 12 34 56 78',
+            type: 'tel',
+            onSubmit: (tel) => {
+              leadData.tel = tel;
+              leadFase = 'klaar';
+              voegBerichtToe(`Top ${naam}, ik heb alles voor je klaarstaan! 😊`, 'bot');
+              setTimeout(() => toonLeadCard(), 400);
+            },
+            onSkip: () => {
+              leadFase = 'email';
+              voegBerichtToe('Geen probleem! Mag ik dan je e-mailadres?', 'bot');
+              setTimeout(() => {
+                toonInvoerCard({
+                  label: 'Jouw e-mailadres',
+                  placeholder: 'naam@email.nl',
+                  type: 'email',
+                  onSubmit: (email) => {
+                    leadData.tel = email;
+                    leadFase = 'klaar';
+                    voegBerichtToe(`Top ${naam}, ik heb alles voor je klaarstaan! 😊`, 'bot');
+                    setTimeout(() => toonLeadCard(), 400);
+                  },
+                  onSkip: () => {
+                    leadFase = 'afgesloten';
+                    voegBerichtToe('Dat begrijp ik. Bel ons gerust via 026-3274455 of mail naar info@roelwillemsen.nl.', 'bot');
+                  }
+                });
+              }, 300);
+            }
+          });
+        }, 300);
+      }
+    });
   }
 
   /* HOOFDFUNCTIE */
@@ -308,9 +380,9 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
     busy = true;
     snd.disabled = true;
 
-    /* In lead flow: JS handelt af, geen API */
+    /* In lead flow: invoerkaart toont al — negeer chat input */
     if (leadFase && leadFase !== 'klaar' && leadFase !== 'afgesloten') {
-      await verwerkLeadInput(msg);
+      voegBerichtToe('Vul het veld hierboven in om verder te gaan.', 'bot');
       busy = false;
       snd.disabled = false;
       inp.focus();
@@ -345,7 +417,8 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: 'system', content: C.prompt }, ...historie]
+          messages: [{ role: 'system', content: C.prompt }, ...historie],
+          max_tokens: 80
         })
       });
 
@@ -365,8 +438,9 @@ TAAL: Altijd Nederlands. Vriendelijk en direct.`
       // Na leadNa berichten → start lead flow
       if (userTeller >= C.leadNa && !leadFase && !leadGedaan) {
         leadFase = 'naam';
-        setTimeout(async () => {
-          await botZegt('Om je nog beter te helpen, mag ik je naam weten?');
+        setTimeout(() => {
+          voegBerichtToe('Om je nog beter te helpen, mag ik je naam weten?', 'bot');
+          setTimeout(() => startLeadFlow(), 400);
         }, 700);
       } else {
         setTimeout(() => toonOpties(kiesOpties(msg)), 400);
